@@ -13,54 +13,58 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out the code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Set up Python 3.11
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      # Step 3: Install Poetry
       - name: Install Poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           export PATH="$HOME/.local/bin:$PATH"
 
-      # Step 4: Install dependencies using Poetry
       - name: Install dependencies using Poetry
         run: |
           poetry install
 
-      # Optional: Install dependencies from requirements.txt (if you need it)
-      - name: Install dependencies from requirements.txt
+      - name: Install system dependencies for Playwright
         run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          fi
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 \
+            libatk-bridge2.0-0 \
+            libgtk-3-0 \
+            libx11-xcb1 \
+            libdbus-glib-1-2 \
+            xdg-utils \
+            libasound2 \
+            libxss1 \
+            libappindicator3-1 \
+            libwoff2dec1 \
+            libvpx6 \
+            libevent-2.1-6 \
+            libopus0 \
+            libgstreamer1.0-0 \
+            libgstreamer-plugins-base1.0-0 \
+            libgstreamer-plugins-good1.0-0 \
+            libflite1 \
+            libharfbuzz-icu0 \
+            libx264-155
 
-      # Step 5: Install Playwright browsers
       - name: Install Playwright browsers
-        run: |
-          poetry run playwright install
-
-      # Step 6: Verify Playwright installation
-      - name: Verify Playwright installation
         run: |
           poetry run playwright install --with-deps
 
-      # Step 6: Run Behave BDD tests
       - name: Run Behave tests
         run: |
-          poetry run behave feature/ --format json --outfile result.json
-          
-      # Step 7: Check if tests passed and upload artifacts
+          poetry run behave feature/ --format json --outfile result.json -v  # Enable verbose logging
+
       - name: Check test results and upload artifacts
-        if: ${{ success() }}  # Only run if previous steps succeed
+        if: ${{ success() }}
         run: |
-          # Check if the test run was successful
           if grep -q '"status": "failed"' result.json; then
             echo "Some tests failed!"
             exit 1
@@ -68,16 +72,13 @@ jobs:
             echo "All tests passed!"
           fi
 
-      # Step 8: Upload test results and logs
       - name: Upload test results
         uses: actions/upload-artifact@v3
         with:
           name: behave-results
           path: result.json
 
-      # Step 9: Upload Allure report (if using allure-behave)
       - name: Upload Allure report
         if: ${{ success() }}
         run: |
           allure serve allure-report/
-

@@ -29,30 +29,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt  # Corrected command
 
-      # Step 4: Install system dependencies for Playwright (required for Chromium)
-      - name: Install system dependencies for Playwright
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libnss3 \
-            libatk-bridge2.0-0 \
-            libgtk-3-0 \
-            libx11-xcb1 \
-            libdbus-glib-1-2 \
-            xdg-utils \
-            libasound2 \
-            libxss1 \
-            libappindicator3-1 \
-            libgstreamer1.0-0 \
-            libgstreamer-plugins-base1.0-0 \
-            libgstreamer-plugins-good1.0-0 \
-            libflite1 \
-            libharfbuzz-icu0 \
-            libvpx \
-            libevent-dev \
-            libx264-dev \
-            woff2
-
       # Step 5: Install Playwright and its dependencies using playwright install
       - name: Install Playwright and its dependencies
         run: |

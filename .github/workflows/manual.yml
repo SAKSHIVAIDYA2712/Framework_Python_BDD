@@ -1,4 +1,4 @@
-name: Playwright BDD Tests with Behave and Poetry
+name: Playwright BDD Tests with Behave
 
 on:
   push:
@@ -13,63 +13,70 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Set up Python
+      # Step 1: Set up Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      # Step 3: Install Poetry
-      - name: Install Poetry
+      # Step 2: Install dependencies from requirements.txt
+      - name: Install dependencies from requirements.txt
         run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          export PATH="$HOME/.local/bin:$PATH"
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      # Step 4: Install dependencies using Poetry
-      - name: Install dependencies using Poetry
-        run: |
-          poetry install
-
-      # Step 5: Install system dependencies for Playwright
+      # Step 3: Install system dependencies for Playwright
       - name: Install system dependencies for Playwright
         run: |
           sudo apt-get update
           sudo apt-get install -y \
             libnss3 \
             libatk-bridge2.0-0 \
+            libgtk-3-0 \
+            libx11-xcb1 \
+            libdbus-glib-1-2 \
+            xdg-utils \
             libasound2 \
             libxss1 \
             libappindicator3-1 \
-            woff2  # This is usually needed for web font rendering
+            libgstreamer1.0-0 \
+            libgstreamer-plugins-base1.0-0 \
+            libgstreamer-plugins-good1.0-0 \
+            libflite1 \
+            libharfbuzz-icu0 \
+            libvpx6 \
+            libevent-dev \
+            libx264-dev \
+            woff2
 
-      # Step 6: Install Playwright and browsers
+      # Step 4: Install Playwright and its dependencies (this should install Chromium)
       - name: Install Playwright and dependencies
         run: |
-          poetry run playwright install --with-deps
+          python -m playwright install --with-deps
 
-      # Step 7: Run Behave tests
+      # Step 5: Run Behave tests
       - name: Run Behave tests
         run: |
-          poetry run behave feature/ --format json --outfile result.json -v  # Enable verbose logging
+          behave feature/ --format json --outfile result.json -v
 
-      # Step 8: Generate Allure report from Behave results
+      # Step 6: Upload test results
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: behave-results
+          path: result.json
+
+      # Step 7: Generate Allure report
       - name: Generate Allure report
         run: |
           allure generate result.json --clean -o allure-report
 
-      # Step 9: Upload Allure report as artifact
+      # Step 8: Upload Allure report
       - name: Upload Allure report
         uses: actions/upload-artifact@v3
         with:
           name: allure-report
           path: allure-report
-
-      # Step 10: Serve Allure report (Optional for local access, not in CI)
-      - name: Serve Allure report
-        if: ${{ success() }}
-        run: |
-          allure serve allure-report/ || echo "Allure serve failed because GitHub Actions does not support serving web reports."

@@ -13,50 +13,69 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 1: Set up Python
+      # Step 2: Set up Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      # Step 2: Install dependencies from requirements.txt
+      # Step 3: Install dependencies from requirements.txt
       - name: Install dependencies from requirements.txt
         run: |
-          sudo apt-get update && sudo apt-get install -y poppler-utils
-          python -m pip --version
           python -m pip install --upgrade pip
-          python -m pip install poetry
-          python -m poetry install
-          python -m pip install requirements.txt
-          
-          playwright install
+          pip install -r requirements.txt  # Corrected command
 
-      # Step 4: Install Playwright and its dependencies (this should install Chromium)
-      - name: Install Playwright and dependencies
+      # Step 4: Install system dependencies for Playwright (required for Chromium)
+      - name: Install system dependencies for Playwright
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 \
+            libatk-bridge2.0-0 \
+            libgtk-3-0 \
+            libx11-xcb1 \
+            libdbus-glib-1-2 \
+            xdg-utils \
+            libasound2 \
+            libxss1 \
+            libappindicator3-1 \
+            libgstreamer1.0-0 \
+            libgstreamer-plugins-base1.0-0 \
+            libgstreamer-plugins-good1.0-0 \
+            libflite1 \
+            libharfbuzz-icu0 \
+            libvpx \
+            libevent-dev \
+            libx264-dev \
+            woff2
+
+      # Step 5: Install Playwright and its dependencies using playwright install
+      - name: Install Playwright and its dependencies
         run: |
           python -m playwright install --with-deps
 
-      # Step 5: Run Behave tests
+      # Step 6: Run Behave tests
       - name: Run Behave tests
         run: |
           behave feature/ --format json --outfile result.json -v
 
-      # Step 6: Upload test results
+      # Step 7: Upload test results
       - name: Upload test results
         uses: actions/upload-artifact@v3
         with:
           name: behave-results
           path: result.json
 
-      # Step 7: Generate Allure report
+      # Step 8: Generate Allure report
       - name: Generate Allure report
         run: |
           allure generate result.json --clean -o allure-report
 
-      # Step 8: Upload Allure report
+      # Step 9: Upload Allure report
       - name: Upload Allure report
         uses: actions/upload-artifact@v3
         with:

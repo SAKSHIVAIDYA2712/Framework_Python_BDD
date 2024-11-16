@@ -43,6 +43,7 @@ def set_browser(context, playwright):
                 slow_mo=SLOW_MO_TIME,  # slows each action by 10s
                 timeout=BROWSER_LAUNCH_TIMEOUT  # browser launch time
             )
+            print("Chromium browser launched")
         elif browser_type == "FIREFOX":
             browser = playwright.firefox.launch(
                 headless=False,

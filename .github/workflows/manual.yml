@@ -32,7 +32,7 @@ jobs:
         continue-on-error: true
 
       - name: Run Behave tests
-        run: behave -f allure_behave.formatter:AllureFormatter -o reports/ features
+        run: behave -f allure_behave.formatter:AllureFormatter -o reports/ feature
         working-directory: .
         continue-on-error: true
 

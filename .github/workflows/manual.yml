@@ -39,6 +39,8 @@ jobs:
         env:
           BROWSER_TYPE: CHROMIUM
           BASE_URL: https://sakshivaidya2712.github.io/react-form/
+        run: |
+           behave --no-capture feature/
           
       - name: Run Behave tests
         run: |

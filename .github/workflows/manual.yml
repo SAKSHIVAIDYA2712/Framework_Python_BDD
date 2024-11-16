@@ -34,30 +34,6 @@ jobs:
           
           playwright install
 
-      # Step 3: Install system dependencies for Playwright
-      - name: Install system dependencies for Playwright
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libnss3 \
-            libatk-bridge2.0-0 \
-            libgtk-3-0 \
-            libx11-xcb1 \
-            libdbus-glib-1-2 \
-            xdg-utils \
-            libasound2 \
-            libxss1 \
-            libappindicator3-1 \
-            libgstreamer1.0-0 \
-            libgstreamer-plugins-base1.0-0 \
-            libgstreamer-plugins-good1.0-0 \
-            libflite1 \
-            libharfbuzz-icu0 \
-            libvpx \
-            libevent-dev \
-            libx264-dev \
-            woff2
-
       # Step 4: Install Playwright and its dependencies (this should install Chromium)
       - name: Install Playwright and dependencies
         run: |

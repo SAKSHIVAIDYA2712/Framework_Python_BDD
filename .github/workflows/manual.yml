@@ -47,7 +47,7 @@ jobs:
             libgstreamer-plugins-good1.0-0 \
             libflite1 \
             libharfbuzz-icu0 \
-            libvpx6 \
+            libvpx5 \
             libevent-dev \
             libx264-dev \
             woff2

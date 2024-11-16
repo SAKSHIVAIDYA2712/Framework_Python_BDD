@@ -1,65 +1,29 @@
-name: Playwright BDD Tests with Behave
-
+name: Playwright Tests
 on:
   push:
-    branches:
-      - master
+    branches: master
   pull_request:
-    branches:
-      - master
-
+    branches: master
 jobs:
   test:
+    timeout-minutes: 60
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies from requirements.txt
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Install Playwright and its dependencies
-        run: |
-          python -m playwright install --with-deps
-          python -m playwright --version  # Verify Playwright installation
-
-      - name: Check if browsers are installed
-        run: |
-          ls /home/runner/.cache/ms-playwright/
-          
-      - name: Run Behave tests with environment variables
-        env:
-          BROWSER_TYPE: CHROMIUM
-          BASE_URL: https://sakshivaidya2712.github.io/react-form/
-        run: |
-           behave --no-capture feature/
-          
-      - name: Run Behave tests
-        run: |
-          pwd
-          ls -l
-          behave --no-capture feature/
-
-      - name: Upload test results
-        uses: actions/upload-artifact@v3
-        with:
-          name: behave-results
-          path: result.json
-
-      - name: Generate Allure report
-        run: |
-          allure generate result.json --clean -o allure-report
-
-      - name: Upload Allure report
-        uses: actions/upload-artifact@v3
-        with:
-          name: allure-report
-          path: allure-report
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Ensure browsers are installed
+      run: python -m playwright install --with-deps
+    - name: Run your tests
+      run: pytest --tracing=retain-on-failure
+    - uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: playwright-traces
+        path: test-results/

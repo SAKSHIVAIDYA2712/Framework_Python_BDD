@@ -13,45 +13,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Set up Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      # Step 3: Install dependencies from requirements.txt
       - name: Install dependencies from requirements.txt
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt  # Corrected command
+          pip install -r requirements.txt
 
-      # Step 5: Install Playwright and its dependencies using playwright install
       - name: Install Playwright and its dependencies
         run: |
           python -m playwright install --with-deps
+          python -m playwright --version  # Verify installation
+          python -m playwright install --list  # Check installed browsers
 
-      # Step 6: Run Behave tests
       - name: Run Behave tests
         run: |
-          behave --no-capture feature/ 
+          pwd
+          ls -l
+          behave --no-capture feature/
 
-      # Step 7: Upload test results
       - name: Upload test results
         uses: actions/upload-artifact@v3
         with:
           name: behave-results
           path: result.json
 
-      # Step 8: Generate Allure report
       - name: Generate Allure report
         run: |
           allure generate result.json --clean -o allure-report
 
-      # Step 9: Upload Allure report
       - name: Upload Allure report
         uses: actions/upload-artifact@v3
         with:
